@@ -36,6 +36,6 @@ dependencies {
 
 
 
-    implementation project(':offlineassets');
-    //implementation 'com.github.plugxrandroid:offlineassets:0.01'
+    //implementation project(':offlineassets');
+   // implementation 'com.github.plugxrandroid:offlineassets:0.02'
 }

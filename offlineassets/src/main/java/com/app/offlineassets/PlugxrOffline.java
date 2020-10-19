@@ -307,9 +307,9 @@ public class PlugxrOffline extends AppCompatActivity {
 
                 Log.v("Plugxr","Already Downloaded");
 
-                /*File projectPath = new File(Environment.getExternalStorageDirectory() + "/"+projectId);
+                /*File projectPath = new File(context.getExternalFilesDir(null) + "/"+projectId);
                 if (projectPath.exists()){
-                    File folderPath = new File(Environment.getExternalStorageDirectory() + "/"+projectId+"/"+folderName);
+                    File folderPath = new File(context.getExternalFilesDir(null) + "/"+projectId+"/"+folderName);
                     if (folderPath.exists()){
 
                     }else {
@@ -406,12 +406,12 @@ public class PlugxrOffline extends AppCompatActivity {
 
                     //Is Folder is Downloaded or Not
                     if (isDownloaded == false){
-                        File projectPath = new File(Environment.getExternalStorageDirectory() + "/"+projectName);
+                        File projectPath = new File(context.getExternalFilesDir(null).getAbsolutePath() + "/"+projectName);
                         if (!projectPath.exists()){
                             projectPath.mkdir();
                         }
 
-                        File folderPath = new File(Environment.getExternalStorageDirectory() +"/"+projectName+"/"+folderName);
+                        File folderPath = new File(context.getExternalFilesDir(null).getAbsolutePath() +"/"+projectName+"/"+folderName);
                         if (!folderPath.exists()){
                             folderPath.mkdir();
                         }
@@ -542,7 +542,7 @@ public class PlugxrOffline extends AppCompatActivity {
     private static void DownloadAssetsData(String folderName, JSONArray jsonArray, String projectName) {
 
 
-        File assetsPath = new File(Environment.getExternalStorageDirectory() +"/"+projectName+"/"+"Assets");
+        File assetsPath = new File(context.getExternalFilesDir(null).getAbsolutePath() +"/"+projectName+"/"+folderName+"/"+"Assets");
         if (!assetsPath.exists()){
             assetsPath.mkdir();
         }
@@ -722,13 +722,13 @@ public class PlugxrOffline extends AppCompatActivity {
 
         boolean status = false;
 
-        File projectPath = new File(Environment.getExternalStorageDirectory() + "/"+projectName);
+        File projectPath = new File(context.getExternalFilesDir(null).getAbsolutePath() + "/"+projectName);
 
 
         Log.v("PRIYA","Project Path "+projectPath);
 
         if(projectPath.exists()) {
-            File folderPath = new File(Environment.getExternalStorageDirectory() + "/"+projectName+"/"+folderName);
+            File folderPath = new File(context.getExternalFilesDir(null).getAbsolutePath() + "/"+projectName+"/"+folderName);
             Log.v("PRIYA","Folder Path "+folderPath);
 
             if (folderPath.exists()){
