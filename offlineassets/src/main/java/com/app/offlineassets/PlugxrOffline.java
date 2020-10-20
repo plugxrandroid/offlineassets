@@ -118,6 +118,8 @@ public class PlugxrOffline extends AppCompatActivity {
 
         final TinyDB tinyDB = new TinyDB(context);
 
+        Log.v("Plugxr",projectId);
+        Log.v("Plugxr",folderName);
 
         if (tinyDB.getBoolean("checkFirstTime") == false){
 
@@ -180,7 +182,12 @@ public class PlugxrOffline extends AppCompatActivity {
 
                                 tinyDB.putString("FoldersData",new Gson().toJson(folderData));
 
+
+                                Log.v("Plugxr","Response : "+response.body());
+
                                 DownloadAssetsData(folderName,projectId);
+
+
 
                                 //DownloadAssets(folderName,projectId);
 
@@ -416,8 +423,12 @@ public class PlugxrOffline extends AppCompatActivity {
                             folderPath.mkdir();
                         }
 
+                        Log.v("Plugxr",folderUrl);
                         // Start Download process
-                        DownloadFolder(folderPath,folderUrl,folderName,projectName,jsonArray);
+                        if (!folderUrl.equals("")){
+                            DownloadFolder(folderPath,folderUrl,folderName,projectName,jsonArray);
+                        }
+
 
                         /*}else {
                             // If book is already downloaded
@@ -558,6 +569,9 @@ public class PlugxrOffline extends AppCompatActivity {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                 String folderStr = jsonObject.getString("folder_name");
+
+
+
                 // Check given Folder is Available or not
                 if (folderStr.equals(folderName)){
                     //Check update is available or not.
@@ -571,18 +585,21 @@ public class PlugxrOffline extends AppCompatActivity {
 
 
                         for (int j = 0;j<jsonArrayAssets.length();j++) {
-                            JSONObject jsonObjectAssets = jsonArrayAssets.getJSONObject(i);
+                            JSONObject jsonObjectAssets = jsonArrayAssets.getJSONObject(j);
                             String assetsDateStr = jsonObjectAssets.getString("updated_date");
                             String assetfolderName = jsonObjectAssets.getString("target_id");
                             String assetsUrl = jsonObjectAssets.getString("url");
 
-
+                            Log.v("SAHA","Asset Url : "+assetsUrl);
 
                             //assetsDataList.add(assetsDateStr);
 
                             if (tinyDB.getString(folderName).equals("")){
 
                                 if (!assetsUrl.equals("")){
+
+                                    Log.v("SAHA","Asset Url1 : "+assetsUrl);
+
                                     DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
                                 }
 
@@ -591,7 +608,6 @@ public class PlugxrOffline extends AppCompatActivity {
                                 JSONArray jsonAssetsArrayTiny = null;
                                 try {
                                     jsonAssetsArrayTiny = new JSONArray(tinyDB.getString(folderName));
-                                    Log.v("Plugxr","Download Assets : "+jsonAssetsArrayTiny);
 
 
                                 } catch (JSONException e) {
@@ -602,6 +618,17 @@ public class PlugxrOffline extends AppCompatActivity {
 
                                     Log.v("Plugxr","Folder Udated : "+assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date")));
                                     if (!assetsUrl.equals("")){
+
+                                        Log.v("SAHA","Asset Url2 : "+assetsUrl);
+
+                                        DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+                                    }
+                                }else {
+                                    Log.v("Plugxr","Folder Udated : "+assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date")));
+                                    if (!assetsUrl.equals("")){
+
+                                        Log.v("SAHA","Asset Url3 : "+assetsUrl);
+
                                         DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
                                     }
                                 }
@@ -687,13 +714,13 @@ public class PlugxrOffline extends AppCompatActivity {
                     @Override
                     public void onDownloadComplete() {
 
-                        Log.v("SURYA","COMPLETED");
+                        Log.v("SURYA","ASSETS COMPLETED");
 
                         ZipArchive zipArchive = new ZipArchive();
                         zipArchive.unzip(assetsPath+"/"+assetfolderName+".zip", String.valueOf(assetsPath+"/"+assetfolderName),"");
 
 
-
+                        Log.v("SURYA","ASSETS PATH : "+assetsPath+"/"+assetfolderName+".zip");
 
                         File file = new File(assetsPath+"/"+assetfolderName+".zip");
                         if (file.isFile()){
@@ -794,6 +821,8 @@ public class PlugxrOffline extends AppCompatActivity {
 
     private static boolean isDataAvailable(String folderName, JSONArray jsonArray) {
 
+        Log.v("Plugxr",folderName);
+
         boolean status = false;
 
         for (int i = 0;i<jsonArray.length();i++){
@@ -801,10 +830,11 @@ public class PlugxrOffline extends AppCompatActivity {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 String folderStr = jsonObject.getString("folder_name");
 
+                Log.v("Plugxr",jsonObject.getString("folder_name"));
                 if (folderStr.equals(folderName)){
+
+                    Log.v("Plugxr",jsonObject.getString("folder_name"));
                     status = true;
-                }else {
-                    status = false;
                 }
 
             } catch (JSONException e) {

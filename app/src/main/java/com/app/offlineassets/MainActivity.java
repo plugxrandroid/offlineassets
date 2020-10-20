@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 final PlugxrOffline downloadAssets = new PlugxrOffline(MainActivity.this);
 
                 // Authenticate Offline Data
-                downloadAssets.Authenticate("PJYS7P","Marvel");
+                downloadAssets.Authenticate("PJYWC6","Animals");
 
 
 
