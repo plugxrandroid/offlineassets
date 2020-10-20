@@ -1,9 +1,10 @@
 package com.app.offlineassets;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
@@ -29,7 +30,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -47,6 +47,7 @@ public class PlugxrOffline extends AppCompatActivity {
     private static Context context;
     private static List<String> assetsDataList = new ArrayList<>();
     private List<Data> folderData;
+    private ProgressDialog dialog;
 
     public PlugxrOffline(Context context) {
         this.context = context;
@@ -66,9 +67,12 @@ public class PlugxrOffline extends AppCompatActivity {
             String android_id = Settings.Secure.getString(context.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
 
-            /*final ProgressDialog dialog = new ProgressDialog(context);
+            dialog = new ProgressDialog(context);
             dialog.setMessage("Please Wait...");
-            dialog.show();*/
+            dialog.show();
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.setContentView(R.layout.progressdialog);
+            dialog.setCancelable(false);
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(Api.BASE_URL)
@@ -99,7 +103,7 @@ public class PlugxrOffline extends AppCompatActivity {
 
                         //    dialog.dismiss();
                         }else {
-                    //        dialog.dismiss();
+                            dialog.dismiss();
                         }
                     }
 
@@ -107,7 +111,7 @@ public class PlugxrOffline extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call<DeviceLogin> call, Throwable t) {
-              //      dialog.dismiss();
+                    dialog.dismiss();
                 }
             });
         }
@@ -183,9 +187,12 @@ public class PlugxrOffline extends AppCompatActivity {
                                 tinyDB.putString("FoldersData",new Gson().toJson(folderData));
 
 
+
                                 Log.v("Plugxr","Response : "+response.body());
 
-                                DownloadAssetsData(folderName,projectId);
+                                dialog.dismiss();
+
+                                DownloadAssetsData(folderName,projectId,folderData);
 
 
 
@@ -196,13 +203,13 @@ public class PlugxrOffline extends AppCompatActivity {
 
                         }
                     }else {
-                        // dialog.dismiss();
+                         dialog.dismiss();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<Folder> call, Throwable t) {
-                    //  dialog.dismiss();
+                      dialog.dismiss();
                 }
             });
         }else {
@@ -272,7 +279,9 @@ public class PlugxrOffline extends AppCompatActivity {
 
                              //       DownloadAssets(folderName,projectId);
 
-                                    DownloadAssetsData(folderName,projectId);
+                                    dialog.dismiss();
+
+                                    DownloadAssetsData(folderName,projectId, folderData);
 
                                 }else {
                                     tinyDB.getString("FoldersData");
@@ -280,8 +289,8 @@ public class PlugxrOffline extends AppCompatActivity {
                                         JSONArray jsonArray = new JSONArray(tinyDB.getString("FoldersData"));
 
                                         Log.v("Plugxr","Second Time If Date is Same: "+jsonArray);
-
-                                        DownloadAssetsData(folderName,projectId);
+                                        dialog.dismiss();
+                                        DownloadAssetsData(folderName,projectId, folderData);
 
                                     } catch (JSONException e) {
                                         e.printStackTrace();
@@ -291,18 +300,22 @@ public class PlugxrOffline extends AppCompatActivity {
 
                                 }
 
+                            }else {
+                                dialog.dismiss();
                             }
                         }else {
-                            //   dialog.dismiss();
+                               dialog.dismiss();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Folder> call, Throwable t) {
-                        // dialog.dismiss();
+                         dialog.dismiss();
                     }
                 });
             }else {
+
+                dialog.dismiss();
 
                 tinyDB.getString("FoldersData");
                 try {
@@ -337,7 +350,7 @@ public class PlugxrOffline extends AppCompatActivity {
 
 
     // Download assets
-    private static void DownloadAssetsData(final String folderName, String projectName){
+    private static void DownloadAssetsData(final String folderName, String projectName, List<Data> folderData){
 
 
 
@@ -366,7 +379,7 @@ public class PlugxrOffline extends AppCompatActivity {
         if (checkFolderData == true){
             // Check data is updated or not
             String folderDate = tinyDB.getString(folderName+"UpdateDate");
-            boolean checkFolderUpdate = isFolderUpdateAvailable(folderName,jsonArray,folderDate);
+            boolean checkFolderUpdate = isFolderUpdateAvailable(folderName,jsonArray,folderDate,folderData);
 
             Log.v("PRIYA","Folder Update is Available"+checkFolderUpdate);
 
@@ -404,7 +417,7 @@ public class PlugxrOffline extends AppCompatActivity {
 
 
                     JSONArray jsonArrayAssets = jsonObject.getJSONArray("assets");
-                    tinyDB.putString(folderName,jsonArrayAssets.toString());
+
                     // if (folderActivated == true){
 
                     boolean isDownloaded = isFolderisAvailableinDevice(projectName,folderName);
@@ -614,17 +627,18 @@ public class PlugxrOffline extends AppCompatActivity {
                                     e.printStackTrace();
                                 }
 
-                                if (!assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date"))){
+                                if (jsonAssetsArrayTiny.equals("")){
+                                    if (!assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date").toString())){
 
-                                    Log.v("Plugxr","Folder Udated : "+assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date")));
-                                    if (!assetsUrl.equals("")){
+                                        Log.v("Plugxr","Folder Udated : "+assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date")));
+                                        if (!assetsUrl.equals("")){
 
-                                        Log.v("SAHA","Asset Url2 : "+assetsUrl);
+                                            Log.v("SAHA","Asset Url2 : "+assetsUrl);
 
-                                        DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+                                            DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+                                        }
                                     }
                                 }else {
-                                    Log.v("Plugxr","Folder Udated : "+assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date")));
                                     if (!assetsUrl.equals("")){
 
                                         Log.v("SAHA","Asset Url3 : "+assetsUrl);
@@ -632,6 +646,17 @@ public class PlugxrOffline extends AppCompatActivity {
                                         DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
                                     }
                                 }
+
+
+                                /*else {
+                                    Log.v("Plugxr","Folder Udated : "+assetsDateStr.equals(jsonAssetsArrayTiny.getJSONObject(j).getString("updated_date")));
+                                    if (!assetsUrl.equals("")){
+
+                                        Log.v("SAHA","Asset Url3 : "+assetsUrl);
+
+                                        DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+                                    }
+                                }*/
                             }
 
 
@@ -728,7 +753,7 @@ public class PlugxrOffline extends AppCompatActivity {
                         }
 
 
-                        Toast.makeText(context,"Completed",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context,"Downloaded",Toast.LENGTH_SHORT).show();
 
 
 
@@ -775,9 +800,11 @@ public class PlugxrOffline extends AppCompatActivity {
     }
 
 
-    private static boolean isFolderUpdateAvailable(String folderName, JSONArray jsonArray, String folderDate) {
+    private static boolean isFolderUpdateAvailable(String folderName, JSONArray jsonArray, String folderDate, List<Data> folderData) {
 
         boolean status = false;
+
+        TinyDB tinyDB = new TinyDB(context);
 
         for (int i = 0;i<jsonArray.length();i++){
             try {
@@ -792,10 +819,12 @@ public class PlugxrOffline extends AppCompatActivity {
                     String folderDateStr = jsonObject.getString("updated_date");
 
 
+
+
                     if (folderDate.equals("")){
 
                         status = true;
-
+                        tinyDB.putString(folderName,folderData.get(i).getAssets().toString());
                     }else {
                         if (folderDateStr.equals(folderDate)){
                             status = false;

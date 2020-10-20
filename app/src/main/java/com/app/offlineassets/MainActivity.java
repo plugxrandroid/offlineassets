@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 downloadAssets.Authenticate("PJYWC6","Animals");
 
 
+                Toast.makeText(getApplicationContext(),"Done",Toast.LENGTH_SHORT).show();
 
 
 
