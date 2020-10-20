@@ -11,7 +11,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface Api {
-    static String BASE_URL = "https://rnd.plugxr.com/";
+    static String BASE_URL = "https://we.plugxr.com/";
 
 
     @POST("api/v3/deviceLogin")
