@@ -48,6 +48,7 @@ public class PlugxrOffline extends AppCompatActivity {
     private static List<String> assetsDataList = new ArrayList<>();
     private List<Data> folderData;
     private ProgressDialog dialog;
+    public boolean downloaded = false;
 
     public PlugxrOffline(Context context) {
         this.context = context;
@@ -57,7 +58,7 @@ public class PlugxrOffline extends AppCompatActivity {
     // Login Access
     public void Authenticate(final String projectId, final String folderName){
 
-
+        Toast.makeText(context,"Done",Toast.LENGTH_SHORT).show();
 
             final TinyDB tinyDB = new TinyDB(context);
 
@@ -100,6 +101,7 @@ public class PlugxrOffline extends AppCompatActivity {
                             GetOfflineContent(projectId,folderName);
 
                             Log.v("Plugxr",mobileOtp.getToken());
+                            //Toast.makeText(context,mobileOtp.getToken(),Toast.LENGTH_SHORT).show();
 
                         //    dialog.dismiss();
                         }else {
@@ -350,7 +352,7 @@ public class PlugxrOffline extends AppCompatActivity {
 
 
     // Download assets
-    private static void DownloadAssetsData(final String folderName, String projectName, List<Data> folderData){
+    private void DownloadAssetsData(final String folderName, String projectName, List<Data> folderData){
 
 
 
@@ -398,7 +400,7 @@ public class PlugxrOffline extends AppCompatActivity {
     }
 
 
-    private static void downloadDataSet(String folderName, JSONArray jsonArray, String projectName) {
+    private void downloadDataSet(String folderName, JSONArray jsonArray, String projectName) {
 
         for (int i = 0;i<jsonArray.length();i++){
             try {
@@ -465,7 +467,7 @@ public class PlugxrOffline extends AppCompatActivity {
     }
 
 
-    private static void DownloadFolder(final File folderPath, final String folderUrl, final String folderName, final String projectName, final JSONArray jsonArray) {
+    private void DownloadFolder(final File folderPath, final String folderUrl, final String folderName, final String projectName, final JSONArray jsonArray) {
 
         Log.v("Plugxr",folderPath.toString());
 
@@ -563,7 +565,7 @@ public class PlugxrOffline extends AppCompatActivity {
 
 
 
-    private static void DownloadAssetsData(String folderName, JSONArray jsonArray, String projectName) {
+    private void DownloadAssetsData(String folderName, JSONArray jsonArray, String projectName) {
 
 
         File assetsPath = new File(context.getExternalFilesDir(null).getAbsolutePath() +"/"+projectName+"/"+folderName+"/"+"Assets");
@@ -614,6 +616,10 @@ public class PlugxrOffline extends AppCompatActivity {
                                     Log.v("SAHA","Asset Url1 : "+assetsUrl);
 
                                     DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+
+
+                                    downloaded = true;
+
                                 }
 
 
@@ -636,6 +642,8 @@ public class PlugxrOffline extends AppCompatActivity {
                                             Log.v("SAHA","Asset Url2 : "+assetsUrl);
 
                                             DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+
+                                            downloaded = true;
                                         }
                                     }
                                 }else {
@@ -644,6 +652,9 @@ public class PlugxrOffline extends AppCompatActivity {
                                         Log.v("SAHA","Asset Url3 : "+assetsUrl);
 
                                         DownloadAssetsFiles(assetsPath,assetsUrl,assetfolderName,projectName,jsonArray);
+
+
+                                        downloaded = true;
                                     }
                                 }
 
@@ -882,5 +893,71 @@ public class PlugxrOffline extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
+    public boolean isDownloaded(){
+
+        return downloaded;
     }
+
+
+    public String getTargetId(String folderName,String targetName){
+
+        String markerId = "";
+
+
+        TinyDB tinyDB = new TinyDB(context);
+        String data = tinyDB.getString("FoldersData");
+
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = new JSONArray(tinyDB.getString("FoldersData"));
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0;i<jsonArray.length();i++){
+            try {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String folderStr = jsonObject.getString("folder_name");
+
+                if (folderStr.equals(folderName)){
+
+                    JSONArray jsonArrayAssets = null;
+                    try {
+                        jsonArrayAssets = new JSONArray(jsonObject.getString("assets"));
+
+                        for (int j = 0;j<jsonArrayAssets.length();j++) {
+                            JSONObject jsonObjectAssets = jsonArrayAssets.getJSONObject(j);
+                            String assetTargetId = jsonObjectAssets.getString("target_id");
+                            String assetFolderName = jsonObjectAssets.getString("name");
+
+
+                            if (assetFolderName.equals(targetName)){
+                                markerId = assetTargetId;
+                            }
+
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+
+        return markerId;
+    }
+
+
+    }
+
+
 

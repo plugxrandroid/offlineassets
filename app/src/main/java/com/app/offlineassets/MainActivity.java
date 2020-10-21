@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
+        Button button = (Button)findViewById(R.id.book1);
 
 
         // Get App Content
@@ -61,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
 
                 }*/
 
+        // Initialize Offline Version
+        final PlugxrOffline downloadAssets = new PlugxrOffline(MainActivity.this);
+
         // Run Time Permissions, Permissions are mandatory
         Dexter.withActivity(MainActivity.this)
                 .withPermissions(
@@ -72,14 +79,29 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-// Initialize Offline Version
-                final PlugxrOffline downloadAssets = new PlugxrOffline(MainActivity.this);
+
 
                 // Authenticate Offline Data
                 downloadAssets.Authenticate("PJYWC6","Animals");
 
 
-                Toast.makeText(getApplicationContext(),"Done",Toast.LENGTH_SHORT).show();
+                final Handler myHandler = new Handler();
+                final int delay = 1000; // 1000 milliseconds == 1 second
+
+
+                Toast.makeText(getApplicationContext(),"Finally",Toast.LENGTH_LONG).show();
+
+                /*myHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        if (downloadAssets.isDownloaded() == true){
+                            Toast.makeText(getApplicationContext(),"Finally",Toast.LENGTH_LONG).show();
+                        }
+                        //myHandler.postDelayed(this, delay);
+                    }
+                }, delay);*/
+
+
+
 
 
 
@@ -89,7 +111,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              String targetId =  downloadAssets.getTargetId("Animals","anim30");
 
+                Toast.makeText(getApplicationContext(),targetId,Toast.LENGTH_LONG).show();
+            }
+        });
 
 
     }
